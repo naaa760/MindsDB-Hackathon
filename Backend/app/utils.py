@@ -1,8 +1,7 @@
 import matplotlib.pyplot as plt
 import io
 import base64
-import threading
-import time
+
 
 def generate_report(df, avg_sleep, avg_steps, avg_active_minutes, avg_vitamin_c):
     report = f"""
@@ -81,56 +80,3 @@ def visualize_wearable_data(df):
     plt.close()
     
     return plot_data
-def remind_to_drink_water():
-    # Implement water reminder logic
-    pass
-
-def remind_to_exercise():
-    # Implement exercise reminder logic
-    pass
-
-def remind_to_stand_up():
-    # Implement stand up reminder logic
-    pass
-
-# def remind_to_sleep():
-#     while True:
-#         now = datetime.now()
-#         target_time = now.replace(hour=21, minute=45, second=0, microsecond=0)  # 9:45 PM
-        
-#         if now > target_time:
-#             # If it's past 9:45 PM, set target for next day
-#             target_time += timedelta(days=1)
-        
-#         time_until_reminder = (target_time - now).total_seconds()
-#         time.sleep(time_until_reminder)
-        
-#         response ="🔔 Reminder: It's almost 10 PM. Time to wind down and prepare for sleep. Aim for 7-8 hours of rest."
-#         # Wait for 15 minutes before checking again
-#         time.sleep(900)
-#     return response
-
-def run_reminders():
-    print("\nSetting up your personalized health reminders...")
-
-    # Start reminder threads
-    water_thread = threading.Thread(target=remind_to_drink_water, daemon=True)
-    exercise_thread = threading.Thread(target=remind_to_exercise, daemon=True)
-    standup_thread = threading.Thread(target=remind_to_stand_up, daemon=True)
-    sleep_thread = threading.Thread(target=remind_to_sleep, daemon=True)
-
-    # Start all threads
-    water_thread.start()
-    exercise_thread.start()
-    standup_thread.start()
-    sleep_thread.start()
-
-    reminder_result = {
-        "message": "Reminders set! You'll receive notifications to help you stay on track with your health goals.",
-        "reminders": [
-            "Don't forget to stay hydrated throughout the day!",
-            "Take a moment to stand up and stretch!"
-        ]
-    }
-
-    return reminder_result
