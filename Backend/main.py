@@ -6,10 +6,31 @@ from PIL import Image
 import time
 from datetime import datetime, timedelta
 from health import generate_report
+import pymysql
 
-# Load the CSV file
-file_path_csv = '8g. AUSNUT 2011-13 AHS Dietary Supplement Nutrient Database.csv'
-data = pd.read_csv(file_path_csv, delimiter=';')
+# Database connection and data retrieval
+try:
+    connection = pymysql.connect(
+        host='127.0.0.1',
+        port=47335,
+        user='mindsdb',
+        password='',  # No password
+        database='files',  # Assuming the data is in 'files' database
+        connect_timeout=30
+    )
+    
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT * FROM data2;")  # Replace 'data2' with the actual table name if different
+        columns = [col[0] for col in cursor.description]  # Get column names
+        rows = cursor.fetchall()
+        data = pd.DataFrame(rows, columns=columns)
+    connection.close()
+
+    print("Data successfully retrieved from the database.")
+
+except pymysql.MySQLError as e:
+    print("Database connection failed:", e)
+    # You might want to add error handling here, such as exiting the program or using a default dataset
 
 # Convert numeric columns to proper format
 numeric_columns = [

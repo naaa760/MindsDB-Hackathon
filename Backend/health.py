@@ -1,17 +1,8 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-from datetime import datetime
+import pymysql
 
-# Read the CSV file
-df = pd.read_csv('dummy_data.csv', parse_dates=['Date'])
-
-# Calculate average metrics
-avg_sleep = df['Sleep Analysis [In Bed] (hr)'].mean()
-avg_steps = df['Step Count (steps)'].mean()
-avg_active_minutes = df['Apple Exercise Time (min)'].mean()
-avg_vitamin_c = df['Vitamin C (mg)'].mean()
-
-# Create a function to generate the report
+# Function to generate the report
 def generate_report(df, avg_sleep, avg_steps, avg_active_minutes, avg_vitamin_c):
     report = f"""
 Tommy's Health Analysis Report
@@ -43,10 +34,6 @@ Recommendations:
 5. Wound Healing: Monitor wound healing progress and maintain good nutrition and sleep habits to support healing.
     """
     return report
-
-# Generate the report
-report = generate_report(df, avg_sleep, avg_steps, avg_active_minutes, avg_vitamin_c)
-# print(report)
 
 # Function to visualize the wearable data
 def visualize_wearable_data(df):
@@ -88,5 +75,37 @@ def visualize_wearable_data(df):
     plt.savefig('health_metrics_over_time.png')
     plt.close()
 
-# Visualize the data
-visualize_wearable_data(df)
+# Read data from MySQL and process it
+try:
+    connection = pymysql.connect(
+        host='127.0.0.1',
+        port=47335,
+        user='mindsdb',
+        password='',  # No password
+        database='files',  # Assuming the data is in 'files' database
+        connect_timeout=30
+    )
+    
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT * FROM data;")  # Replace 'data' with the actual table name if different
+        columns = [col_desc[0] for col_desc in cursor.description]  # Get column names
+        rows = cursor.fetchall()
+        df = pd.DataFrame(rows, columns=columns)
+    
+    # Calculate average metrics
+    avg_sleep = df['Sleep Analysis [In Bed] (hr)'].mean()
+    avg_steps = df['Step Count (steps)'].mean()
+    avg_active_minutes = df['Apple Exercise Time (min)'].mean()
+    avg_vitamin_c = df['Vitamin C (mg)'].mean()
+
+    # Generate the report
+    report = generate_report(df, avg_sleep, avg_steps, avg_active_minutes, avg_vitamin_c)
+    print(report)
+
+    # Visualize the data
+    visualize_wearable_data(df)
+
+    connection.close()
+
+except pymysql.MySQLError as e:
+    print("Connection failed:", e)
