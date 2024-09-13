@@ -1,8 +1,9 @@
-import pandas as pd
 import matplotlib.pyplot as plt
-import pymysql
+import io
+import base64
+import threading
+import time
 
-# Function to generate the report
 def generate_report(df, avg_sleep, avg_steps, avg_active_minutes, avg_vitamin_c):
     report = f"""
 Tommy's Health Analysis Report
@@ -35,7 +36,6 @@ Recommendations:
     """
     return report
 
-# Function to visualize the wearable data
 def visualize_wearable_data(df):
     plt.figure(figsize=(12, 8))
 
@@ -72,40 +72,65 @@ def visualize_wearable_data(df):
     plt.xticks(rotation=45)
 
     plt.tight_layout()
-    plt.savefig('health_metrics_over_time.png')
+    
+    # Save plot to a bytes buffer
+    buffer = io.BytesIO()
+    plt.savefig(buffer, format='png')
+    buffer.seek(0)
+    plot_data = base64.b64encode(buffer.getvalue()).decode()
     plt.close()
-
-# Read data from MySQL and process it
-try:
-    connection = pymysql.connect(
-        host='127.0.0.1',
-        port=47335,
-        user='mindsdb',
-        password='',  # No password
-        database='files',  # Assuming the data is in 'files' database
-        connect_timeout=30
-    )
     
-    with connection.cursor() as cursor:
-        cursor.execute("SELECT * FROM data;")  # Replace 'data' with the actual table name if different
-        columns = [col_desc[0] for col_desc in cursor.description]  # Get column names
-        rows = cursor.fetchall()
-        df = pd.DataFrame(rows, columns=columns)
-    
-    # Calculate average metrics
-    avg_sleep = df['Sleep Analysis [In Bed] (hr)'].mean()
-    avg_steps = df['Step Count (steps)'].mean()
-    avg_active_minutes = df['Apple Exercise Time (min)'].mean()
-    avg_vitamin_c = df['Vitamin C (mg)'].mean()
+    return plot_data
+def remind_to_drink_water():
+    # Implement water reminder logic
+    pass
 
-    # Generate the report
-    report = generate_report(df, avg_sleep, avg_steps, avg_active_minutes, avg_vitamin_c)
-    print(report)
+def remind_to_exercise():
+    # Implement exercise reminder logic
+    pass
 
-    # Visualize the data
-    visualize_wearable_data(df)
+def remind_to_stand_up():
+    # Implement stand up reminder logic
+    pass
 
-    connection.close()
+# def remind_to_sleep():
+#     while True:
+#         now = datetime.now()
+#         target_time = now.replace(hour=21, minute=45, second=0, microsecond=0)  # 9:45 PM
+        
+#         if now > target_time:
+#             # If it's past 9:45 PM, set target for next day
+#             target_time += timedelta(days=1)
+        
+#         time_until_reminder = (target_time - now).total_seconds()
+#         time.sleep(time_until_reminder)
+        
+#         response ="🔔 Reminder: It's almost 10 PM. Time to wind down and prepare for sleep. Aim for 7-8 hours of rest."
+#         # Wait for 15 minutes before checking again
+#         time.sleep(900)
+#     return response
 
-except pymysql.MySQLError as e:
-    print("Connection failed:", e)
+def run_reminders():
+    print("\nSetting up your personalized health reminders...")
+
+    # Start reminder threads
+    water_thread = threading.Thread(target=remind_to_drink_water, daemon=True)
+    exercise_thread = threading.Thread(target=remind_to_exercise, daemon=True)
+    standup_thread = threading.Thread(target=remind_to_stand_up, daemon=True)
+    sleep_thread = threading.Thread(target=remind_to_sleep, daemon=True)
+
+    # Start all threads
+    water_thread.start()
+    exercise_thread.start()
+    standup_thread.start()
+    sleep_thread.start()
+
+    reminder_result = {
+        "message": "Reminders set! You'll receive notifications to help you stay on track with your health goals.",
+        "reminders": [
+            "Don't forget to stay hydrated throughout the day!",
+            "Take a moment to stand up and stretch!"
+        ]
+    }
+
+    return reminder_result

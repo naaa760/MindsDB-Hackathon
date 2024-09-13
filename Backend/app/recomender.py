@@ -1,36 +1,10 @@
 import pandas as pd
 from collections import defaultdict
-import time
-import threading
-from PIL import Image
-import time
-from datetime import datetime, timedelta
 from health import generate_report
-import pymysql
 
-# Database connection and data retrieval
-try:
-    connection = pymysql.connect(
-        host='127.0.0.1',
-        port=47335,
-        user='mindsdb',
-        password='',  # No password
-        database='files',  # Assuming the data is in 'files' database
-        connect_timeout=30
-    )
-    
-    with connection.cursor() as cursor:
-        cursor.execute("SELECT * FROM data2;")  # Replace 'data2' with the actual table name if different
-        columns = [col[0] for col in cursor.description]  # Get column names
-        rows = cursor.fetchall()
-        data = pd.DataFrame(rows, columns=columns)
-    connection.close()
-
-    print("Data successfully retrieved from the database.")
-
-except pymysql.MySQLError as e:
-    print("Database connection failed:", e)
-    # You might want to add error handling here, such as exiting the program or using a default dataset
+# Load the CSV file
+file_path_csv = '8g. AUSNUT 2011-13 AHS Dietary Supplement Nutrient Database.csv'
+data = pd.read_csv(file_path_csv, delimiter=';')
 
 # Convert numeric columns to proper format
 numeric_columns = [
@@ -528,132 +502,6 @@ def analyze_wearable_data(self, wearable_data):
 
     return report, recommendations
 
-def print_welcome():
-    print("""
-    🌟 Welcome to NutriSync! 🌟
-
-    Feeling under the weather? We've got your back!
-    
-    Tell us your symptoms or let your wearable spill the beans,
-    and we'll cook up a custom supplement cocktail just for you.
-
-    Ready to boost your health? Let's dive in!
-    """)
-
-def get_user_choice():
-    while True:
-        choice = input("\nWould you like to (1) enter symptoms manually or (2) analyze your wearable data? Enter 1 or 2: ")
-        if choice in ['1', '2']:
-            return int(choice)
-        else:
-            print("Invalid input. Please enter 1 or 2.")
-
-def display_tommy_analysis():
-    print("Tommy's Health Analysis Report")
-    print("\n1. Sleep")
-    print("   Average sleep duration: 9.46 hours")
-    print("   Recommended: 9-10 hours for children aged 6-13")
-    print("   Status: Within recommended range")
-
-    print("\n2. Physical Activity")
-    print("   Average daily steps: 8,064")
-    print("   Recommended: 10,000-12,000 steps for children")
-    print("   Status: Below recommended")
-
-    print("   Average active minutes: 54 minutes")
-    print("   Recommended: At least 60 minutes of moderate to vigorous physical activity daily")
-    print("   Status: Below recommended")
-
-    print("\n3. Nutrition")
-    print("   Average Vitamin C intake: 38.74 mg")
-    print("   Recommended: 45 mg/day for children aged 6-8")
-    print("   Status: Below recommended")
-
-    print("\nRecommendations:")
-    print("1. Sleep: Maintain current sleep schedule.")
-    print("2. Physical Activity: Increase daily activity to reach 10,000 steps and 60 active minutes.")
-    print("3. Nutrition: Increase Vitamin C intake through diet or supplements.")
-    print("4. Hydration: Ensure adequate water intake throughout the day.")
-    print(
-        "5. Wound Healing: Monitor wound healing progress and maintain good nutrition and sleep habits to support healing.")
-
-def show_health_dashboard():
-    image_path = "health_dashboard.png"
-    image = Image.open(image_path)
-    image.show()
-
-def remind_to_drink_water():
-    while True:
-        # Remind every 1hr
-        time.sleep(3600)
-        print("🔔 Reminder: Have you drunk enough water today? Stay hydrated!")
-
-def remind_to_exercise():
-    while True:
-        # Remind every hour
-        time.sleep(3600)
-        print("🔔 Reminder: Make sure to get some exercise today! Aim for at least 30 minutes of activity.")
-
-def remind_to_stand_up():
-    while True:
-        # Remind every 30 minutes
-        time.sleep(1800)
-        print("🔔 Reminder: Time to stand up and move around! Aim to stand for at least 12 hours today.")
-
-def remind_to_sleep():
-    while True:
-        now = datetime.now()
-        target_time = now.replace(hour=21, minute=45, second=0, microsecond=0)  # 9:45 PM
-        
-        if now > target_time:
-            # If it's past 9:45 PM, set target for next day
-            target_time += timedelta(days=1)
-        
-        time_until_reminder = (target_time - now).total_seconds()
-        time.sleep(time_until_reminder)
-        
-        print("🔔 Reminder: It's almost 10 PM. Time to wind down and prepare for sleep. Aim for 7-8 hours of rest.")
-        
-        # Wait for 15 minutes before checking again
-        time.sleep(900)
-
-
-def print_goodbye():
-    goodbye_message = """
-    ╔═══════════════════════════════════════════════════════════════╗
-    ║                                                               ║
-    ║       Thank you for syncing your health with NutriSync!       ║
-    ║                                                               ║
-    ║   Your personalized nutrition journey is just beginning.      ║
-    ║   Remember, small steps lead to big transformations.          ║
-    ║                                                               ║
-    ║   Stay nourished, stay synced, and thrive with NutriSync!     ║
-    ║                                                               ║
-    ║              We look forward to your next visit.              ║
-    ║                                                               ║
-    ╚═══════════════════════════════════════════════════════════════╝
-    """
-    print(goodbye_message)
-
-def main():
-    print_welcome()
-    
-    while True:
-        user_choice = get_user_choice()
-
-        if user_choice == 1:
-            process_manual_entry()
-            run_reminders()
-        elif user_choice == 2:
-            process_wearable_data()
-            run_reminders()
-        
-        continue_choice = input("\nWould you like to continue using NutriSync? (yes/no): ").lower()
-        if continue_choice != 'yes':
-            break
-    
-    print_goodbye()
-
 def process_manual_entry():
     print("Manual symptom entry selected.")
     available_symptoms = recommender.get_available_symptoms()
@@ -685,37 +533,3 @@ def process_manual_entry():
     print("\nSpecific Recommendations:")
     for recommendation in specific_recommendations:
         print(f"- {recommendation}")
-
-
-def process_wearable_data():
-    print("We help you get connected... Hang tight while we convince the server to stop taking a coffee break!")
-    time.sleep(4)
-    display_tommy_analysis()
-    show_health_dashboard()
-
-def run_reminders():
-    print("\nSetting up your personalized health reminders...")
-    
-    # Start reminder threads
-    water_thread = threading.Thread(target=remind_to_drink_water, daemon=True)
-    exercise_thread = threading.Thread(target=remind_to_exercise, daemon=True)
-    standup_thread = threading.Thread(target=remind_to_stand_up, daemon=True)
-    sleep_thread = threading.Thread(target=remind_to_sleep, daemon=True)
-
-    # Start all threads
-    water_thread.start()
-    exercise_thread.start()
-    standup_thread.start()
-    sleep_thread.start()
-    
-    print("Reminders set! You'll receive notifications to help you stay on track with your health goals.")
-    
-    # Simulate some reminders (you can adjust or remove this if you want)
-    time.sleep(2)  # Wait for 2 seconds
-    print("\n🔔 Reminder: Don't forget to stay hydrated throughout the day!")
-    time.sleep(1)  # Wait for 1 second
-    print("🔔 Reminder: Take a moment to stand up and stretch!")
-
-
-if __name__ == "__main__":
-    main()
