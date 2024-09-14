@@ -1,13 +1,25 @@
 from flask import Blueprint, request, jsonify
-
+from app.recommender import Recommender, process_manual_entry
 from app.utils import generate_report, visualize_wearable_data
 import pymysql
 import pandas as pd
-
+recommender = Recommender()
+recommender.recommend()
 bp = Blueprint('main', __name__)
 
 
     # Rest of the function remains the same...
+@bp.route('/api/symptoms', methods=["POST"])
+def process_symptoms():
+    data = request.json
+    user_symptoms = data.get('symptoms', [])
+    user_age = data.get('age')
+    user_gender = data.get('gender')
+    user_pregnant = data.get('pregnant', False)
+
+    result = process_manual_entry(recommender, user_symptoms, user_age, user_gender, user_pregnant)
+    return jsonify(result), 200
+
 
 @bp.route('/api/wearable/analysis', methods=["GET"])
 def analyze_wearable():
