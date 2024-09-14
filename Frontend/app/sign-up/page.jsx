@@ -59,7 +59,7 @@ const SignUp = () => {
       setConfirmPassword('');
       setUsername('');
       router.push('/');
-      await sendUserDetailsToBackend(name, email, accessToken, refreshToken);
+    //  await sendUserDetailsToBackend(name, email, accessToken, refreshToken);
     } catch (e) {
       if (e.code === 'auth/email-already-in-use') {
         setError('Email is already registered. Please enter another email.');
@@ -72,33 +72,6 @@ const SignUp = () => {
 
   const togglePasswordVisibility = () => {
     setPasswordVisible(!passwordVisible);
-  };
-
-
-  const sendUserDetailsToBackend = async (name, email, accessToken, refreshToken) => {
-    try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/add-user`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name,
-          email,
-          accessToken,
-          refreshToken
-        }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log('User added');
-      } else {
-        console.error('Failed to add user:', response.statusText);
-      }
-    } catch (error) {
-      console.error('Error sending user details to backend:', error);
-    }
   };
 
 

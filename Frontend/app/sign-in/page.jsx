@@ -46,13 +46,10 @@ const SignIn = () => {
         if (!credential) {
           throw new Error('No credential from result');
         }
-        
-        const accessToken = credential.accessToken;
-        const refreshToken = credential.idToken;
         const name = res.user.displayName;
         const email = res.user.email;
         router.push('/');
-        await sendUserDetailsToBackend(name, email, accessToken, refreshToken);
+       // await sendUserDetailsToBackend(name, email, accessToken, refreshToken);
 
         sessionStorage.setItem('user', 'true');
 
@@ -61,32 +58,6 @@ const SignIn = () => {
       }
     } catch (e) {
       console.error('Google sign-in error:', e);
-    }
-  };
-
-  const sendUserDetailsToBackend = async (name, email, accessToken, refreshToken) => {
-    try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/add-user`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name,
-          email,
-          accessToken,
-          refreshToken
-        }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log('User added:', data);
-      } else {
-        console.error('Failed to add user:', response.statusText);
-      }
-    } catch (error) {
-      console.error('Error sending user details to backend:', error);
     }
   };
 
