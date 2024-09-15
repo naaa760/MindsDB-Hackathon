@@ -78,11 +78,11 @@ const Home = () => {
                 <motion.button 
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => router.push('/connect-device')} 
+                  onClick={() => router.push('/health-report')} 
                   className="px-8 py-3 bg-green-600 text-white font-bold rounded-full hover:bg-green-700 transition-colors flex items-center"
                 >
                   <FiActivity className="mr-2" />
-                  Connect Your Device
+                  Provide your health data
                 </motion.button>
               </div>
             </motion.div>
