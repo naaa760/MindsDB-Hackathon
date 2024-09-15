@@ -1,4 +1,4 @@
-import OpenAI from "openai";
+import OpenAI from "openai"
 const openai = new OpenAI({
   apiKey: process.env.NEXT_PUBLIC_UPSTAGE_API,
   baseURL: 'https://api.upstage.ai/v1/solar'
