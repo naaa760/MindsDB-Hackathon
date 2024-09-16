@@ -1,5 +1,6 @@
 import express from 'express';
 import { connectToMongoDB, disconnectFromMongoDB } from './config/mongooseConnection';
+import healthReportRouter from './routes/reportsRoute';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -14,7 +15,6 @@ app.use(express.json());
 (async () => {
   try {
     await connectToMongoDB();
-    console.log('Connected to MongoDB');
   } catch (error) {
     console.error('Error connecting to MongoDB:', error);
     process.exit(1); // Exit the process if the DB connection fails
@@ -22,6 +22,8 @@ app.use(express.json());
 })();
 
 // Define routes
+app.use('/api', healthReportRouter)
+
 app.get('/', (req, res) => {
   res.send('Welcome to the HealthPulseAPI');
 });

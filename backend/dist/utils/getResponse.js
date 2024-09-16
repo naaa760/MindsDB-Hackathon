@@ -42,154 +42,56 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var openai_1 = __importDefault(require("openai"));
 var dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
-var apiKey = process.env.UPSTAGE_API_KEY;
+var apiKey = process.env.UPSTAGE_API_KEY || ""; // Handle null case for apiKey
+if (!apiKey) {
+    throw new Error("API key is missing. Please ensure it is set in the environment variables.");
+}
 var client = new openai_1.default({
     apiKey: apiKey,
-    baseURL: 'https://api.upstage.ai/v1/solar'
+    baseURL: "https://api.upstage.ai/v1/solar",
 });
-// Async function to generate health report
-var generateHealthReport = function (params) { return __awaiter(void 0, void 0, void 0, function () {
-    var assistant, thread, message, handleRequiresAction, handleRunStatus, run, error_1;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0: return [4 /*yield*/, client.beta.assistants.create({
-                    model: "solar-pro",
-                    instructions: "You are a health assistant bot. Use the provided functions to gather information and construct a detailed health report.",
-                    tools: [
-                        {
-                            type: "function",
-                            function: {
-                                name: "getSuspectedDisease",
-                                description: "Get the suspected disease based on symptoms, age, sex, location, and time of year.",
-                                parameters: {
-                                    type: "object",
-                                    properties: {
-                                        symptoms: {
-                                            type: "array",
-                                            items: { type: "string" },
-                                            description: "List of symptoms experienced by the patient.",
-                                        },
-                                        age: { type: "integer", description: "Age of the patient." },
-                                        sex: { type: "string", enum: ["Male", "Female"], description: "Sex of the patient." },
-                                        location: { type: "string", description: "Current location of the patient." },
-                                        timeOfYear: { type: "string", description: "Time of the year (e.g., Spring, Summer, Fall, Winter)." },
-                                    },
-                                    required: ["symptoms", "age", "sex", "location", "timeOfYear"],
-                                    additionalProperties: false,
+// Function to generate health report
+function generateHealthReport(_a) {
+    return __awaiter(this, arguments, void 0, function (_b) {
+        var chatCompletion, response, parsedResponse, error_1;
+        var name = _b.name, age = _b.age, sex = _b.sex, symptoms = _b.symptoms, location = _b.location, timeOfYear = _b.timeOfYear, occupation = _b.occupation;
+        return __generator(this, function (_c) {
+            switch (_c.label) {
+                case 0:
+                    _c.trys.push([0, 2, , 3]);
+                    return [4 /*yield*/, client.chat.completions.create({
+                            model: "solar-pro",
+                            messages: [
+                                {
+                                    role: "system",
+                                    content: "You are a medical health assistant with expertise in analyzing user-provided health information. The user will provide you the following details:\n    1. **Age**: The user's age (as a number).\n    2. **Sex**: The user's sex (Male or Female).\n    3. **Symptoms**: A list of symptoms the user is experiencing.\n    4. **Location**: The user's current location (city, country).\n    5. **Time of Year**: The current season or time of year affecting health conditions.\n    6. **Occupation** (Optional): The user's occupation, which could influence health risks.\n    \n    Based on this information, you will return a detailed health report in **JSON format** with the following fields:\n    \n    - **name**: The user's name.\n    - **age**: The user's age.\n    - **sex**: The user's sex.\n    - **location**: The user's location.\n    - **timeOfYear**: The current time of year or season.\n    - **symptoms**: The list of symptoms provided by the user.\n    - **suspectedDisease**: The most likely disease(s) based on the symptoms.\n    - **pathophysiology**: A brief description of the suspected disease(s)' underlying causes or mechanisms.\n    - **generalHealthStatus**: An assessment of the user's overall health status.\n    - **ageSpecificInsights**: Health considerations specific to the user's age group.\n    - **sexSpecificInsights**: Health considerations specific to the user's sex.\n    - **locationSpecificInsights**: Health considerations based on the user's location.\n    - **seasonalHealthConsiderations**: Health risks or recommendations based on the current time of year.\n    - **educationalSpecificInsights**: Health recommendations or risks based on the user's occupation (if provided).\n    \n    Return **only the JSON response** with these fields. No additional text or formatting is needed.",
                                 },
-                                strict: true,
-                            },
-                        },
-                        // Add other tool definitions here
-                    ],
-                })];
-            case 1:
-                assistant = _a.sent();
-                return [4 /*yield*/, client.beta.threads.create()];
-            case 2:
-                thread = _a.sent();
-                return [4 /*yield*/, client.beta.threads.messages.create(thread.id, {
-                        role: 'user',
-                        content: JSON.stringify({
-                            prompt: "Using the following data, generate a health report:\n        Age: ".concat(params.age, "\n        Sex: ").concat(params.sex, "\n        Symptoms: ").concat(params.symptoms.join(", "), "\n        Location: ").concat(params.location, "\n        Time of Year: ").concat(params.timeOfYear, "\n        Occupation: ").concat(params.occupation || 'Not provided'),
-                        }),
-                    })];
-            case 3:
-                message = _a.sent();
-                handleRequiresAction = function (run) { return __awaiter(void 0, void 0, void 0, function () {
-                    var toolCalls, toolOutputs;
-                    return __generator(this, function (_a) {
-                        switch (_a.label) {
-                            case 0:
-                                if (!(run.required_action &&
-                                    run.required_action.submit_tool_outputs &&
-                                    run.required_action.submit_tool_outputs.tool_calls)) return [3 /*break*/, 5];
-                                toolCalls = run.required_action.submit_tool_outputs.tool_calls;
-                                toolOutputs = toolCalls.map(function (tool) {
-                                    // Example of how to handle specific tool names and generate outputs
-                                    if (tool.function.name === "getSuspectedDisease") {
-                                        return {
-                                            tool_call_id: tool.id,
-                                            output: JSON.stringify({
-                                                suspectedDisease: "Example Disease", // Replace with actual value
-                                            }),
-                                        };
-                                    }
-                                    // Add handling for other tools here if necessary
-                                    return null;
-                                }).filter(function (output) { return output !== null; });
-                                if (!(toolOutputs.length > 0)) return [3 /*break*/, 2];
-                                return [4 /*yield*/, client.beta.threads.runs.submitToolOutputsAndPoll(thread.id, run.id, {
-                                        tool_outputs: toolOutputs,
-                                    })];
-                            case 1:
-                                run = _a.sent();
-                                console.log("Tool outputs submitted successfully.");
-                                return [3 /*break*/, 3];
-                            case 2:
-                                console.log("No tool outputs to submit.");
-                                _a.label = 3;
-                            case 3: return [4 /*yield*/, handleRunStatus(run)];
-                            case 4:
-                                _a.sent();
-                                _a.label = 5;
-                            case 5: return [2 /*return*/];
-                        }
-                    });
-                }); };
-                handleRunStatus = function (run) { return __awaiter(void 0, void 0, void 0, function () {
-                    var messages;
-                    return __generator(this, function (_a) {
-                        switch (_a.label) {
-                            case 0:
-                                if (!(run.status === "completed")) return [3 /*break*/, 2];
-                                return [4 /*yield*/, client.beta.threads.messages.list(thread.id)];
-                            case 1:
-                                messages = _a.sent();
-                                console.log(messages.data);
-                                return [2 /*return*/, messages.data];
-                            case 2:
-                                if (!(run.status === "requires_action")) return [3 /*break*/, 4];
-                                console.log(run.status);
-                                return [4 /*yield*/, handleRequiresAction(run)];
-                            case 3: return [2 /*return*/, _a.sent()];
-                            case 4:
-                                console.error("Run did not complete:", run);
-                                throw new Error("Run did not complete successfully.");
-                        }
-                    });
-                }); };
-                _a.label = 4;
-            case 4:
-                _a.trys.push([4, 7, , 8]);
-                return [4 /*yield*/, client.beta.threads.runs.createAndPoll(thread.id, {
-                        assistant_id: assistant.id,
-                    })];
-            case 5:
-                run = _a.sent();
-                return [4 /*yield*/, handleRunStatus(run)];
-            case 6: return [2 /*return*/, _a.sent()];
-            case 7:
-                error_1 = _a.sent();
-                console.error("An error occurred:", error_1);
-                throw error_1;
-            case 8: return [2 /*return*/];
-        }
+                                {
+                                    role: "user",
+                                    content: JSON.stringify({
+                                        name: name,
+                                        age: age,
+                                        sex: sex,
+                                        symptoms: symptoms,
+                                        location: location,
+                                        timeOfYear: timeOfYear,
+                                        occupation: occupation,
+                                    }),
+                                }
+                            ],
+                        })];
+                case 1:
+                    chatCompletion = _c.sent();
+                    response = chatCompletion.choices[0].message.content || "";
+                    parsedResponse = JSON.parse(response);
+                    return [2 /*return*/, parsedResponse]; // Return the structured health report
+                case 2:
+                    error_1 = _c.sent();
+                    console.error("Error generating health report:", error_1);
+                    throw new Error("Failed to generate health report");
+                case 3: return [2 /*return*/];
+            }
+        });
     });
-}); };
-// Example usage
-//const exampleParams: AssistantParams = {
-//  age: 30,
-//  sex: 'Female',
-//  symptoms: ['fever', 'headache'],
-//  location: 'New York',
-//  timeOfYear: 'Fall',
-//  occupation: 'Teacher',
-//};
-//
-//generateHealthReport(exampleParams).then(result => {
-//  console.log("Health report result:", result);
-//}).catch(error => {
-//  console.error("Failed to generate health report:", error);
-//});
+}
 exports.default = generateHealthReport;

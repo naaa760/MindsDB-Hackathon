@@ -38,11 +38,11 @@ var HealthPulseUserSchema = new mongoose_1.default.Schema({
         required: true
     },
     sex: {
-        type: Number,
+        type: String,
         required: true
     },
     occupation: {
-        type: Number,
+        type: String,
         required: true
     },
     healthData: [
@@ -55,7 +55,7 @@ var HealthPulseUserSchema = new mongoose_1.default.Schema({
         type: [String],
         default: []
     },
-    timeOfyear: {
+    timeOfYear: {
         type: [String],
         default: []
     },
@@ -63,17 +63,24 @@ var HealthPulseUserSchema = new mongoose_1.default.Schema({
         type: [String],
         default: []
     },
+    healthReports: {
+        type: [mongoose_1.Schema.Types.Mixed],
+        default: []
+    },
     createdAt: {
         type: Date,
-        default: Date.now()
+        default: Date.now
     },
     updatedAt: {
         type: Date,
-        default: Date.now()
+        default: Date.now
     },
 });
 HealthPulseUserSchema.pre('save', function (next) {
     this.updatedAt = new Date();
     next();
 });
-exports.default = mongoose_1.default.model('HealthPulseUser', HealthPulseUserSchema);
+// Create the Mongoose model
+var HealthPulseUserModel = mongoose_1.default.model('HealthPulseUser', HealthPulseUserSchema);
+// Export the model to use in other parts of your app
+exports.default = HealthPulseUserModel;

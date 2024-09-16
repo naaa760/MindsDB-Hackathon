@@ -41,16 +41,34 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var express_1 = require("express");
 var getResponse_1 = __importDefault(require("../utils/getResponse"));
-var router = (0, express_1.Router)();
-router.post('/api/get-report', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var _a, name_1, email, age, sex, occupation, symptoms, timeOfYear, places, user, result, error_1;
+var userModel_1 = __importDefault(require("../models/userModel"));
+var healthReportRouter = (0, express_1.Router)();
+healthReportRouter.post('/get-report', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var _a, name, email, age, sex, occupation, symptoms, timeOfYear, places, result, user, error_1, typedError;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
-                _b.trys.push([0, 3, , 4]);
-                _a = req.body, name_1 = _a.name, email = _a.email, age = _a.age, sex = _a.sex, occupation = _a.occupation, symptoms = _a.symptoms, timeOfYear = _a.timeOfYear, places = _a.places;
-                user = new userModel_1.HealthPulseUser({
-                    name: name_1,
+                _a = req.body, name = _a.name, email = _a.email, age = _a.age, sex = _a.sex, occupation = _a.occupation, symptoms = _a.symptoms, timeOfYear = _a.timeOfYear, places = _a.places;
+                // Input validation
+                if (!name || !email || !age || !sex || !symptoms || !timeOfYear || !places) {
+                    return [2 /*return*/, res.status(400).json({ error: 'Missing required fields' })];
+                }
+                _b.label = 1;
+            case 1:
+                _b.trys.push([1, 4, , 5]);
+                return [4 /*yield*/, (0, getResponse_1.default)({
+                        name: name,
+                        age: age,
+                        sex: sex,
+                        symptoms: symptoms,
+                        location: places.join(", "),
+                        timeOfYear: timeOfYear,
+                        occupation: occupation,
+                    })];
+            case 2:
+                result = _b.sent();
+                user = new userModel_1.default({
+                    name: name,
                     email: email,
                     age: age,
                     sex: sex,
@@ -58,30 +76,65 @@ router.post('/api/get-report', function (req, res) { return __awaiter(void 0, vo
                     symptoms: symptoms,
                     timeOfYear: timeOfYear,
                     places: places,
+                    healthReports: [result], // Add the health report to the healthReports field
                     createdAt: new Date(),
                     updatedAt: new Date(),
                 });
-                return [4 /*yield*/, (0, getResponse_1.default)({
-                        age: age,
-                        sex: sex,
-                        symptoms: symptoms,
-                        location: location,
-                        timeOfYear: timeOfYear,
-                        occupation: occupation,
-                    })];
-            case 1:
-                result = _b.sent();
-                res.json(result);
+                // Save user to the database
                 return [4 /*yield*/, user.save()];
-            case 2:
+            case 3:
+                // Save user to the database
                 _b.sent();
-                console.log('Added the user');
+                // Send the health report response
+                if (!res.headersSent) {
+                    res.json(result);
+                }
+                console.log('Added the user and sent the health report');
+                return [3 /*break*/, 5];
+            case 4:
+                error_1 = _b.sent();
+                // Handle errors and send an error response
+                if (!res.headersSent) {
+                    typedError = error_1;
+                    res.status(500).json({ error: typedError.message });
+                }
+                console.error('Error Creating User and Saving the response:', error_1);
+                return [3 /*break*/, 5];
+            case 5: return [2 /*return*/];
+        }
+    });
+}); });
+healthReportRouter.get('/get-report', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var email, user, error_2, typedError;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                email = req.query.email;
+                // Validate email
+                if (typeof email !== 'string') {
+                    return [2 /*return*/, res.status(400).json({ error: 'Invalid or missing email query parameter' })];
+                }
+                _a.label = 1;
+            case 1:
+                _a.trys.push([1, 3, , 4]);
+                return [4 /*yield*/, userModel_1.default.findOne({ email: email }).exec()];
+            case 2:
+                user = _a.sent();
+                if (!user) {
+                    return [2 /*return*/, res.status(404).json({ error: "User not found" })];
+                }
+                res.json(user);
                 return [3 /*break*/, 4];
             case 3:
-                error_1 = _b.sent();
-                console.error('Error Creating User and Saving the response', error_1);
+                error_2 = _a.sent();
+                if (!res.headersSent) {
+                    typedError = error_2;
+                    res.status(500).json({ error: typedError.message });
+                }
+                console.error('Error retrieving User Data', error_2);
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];
         }
     });
 }); });
+exports.default = healthReportRouter;

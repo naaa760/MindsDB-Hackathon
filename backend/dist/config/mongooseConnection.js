@@ -43,7 +43,8 @@ exports.disconnectFromMongoDB = exports.connectToMongoDB = void 0;
 var mongoose_1 = __importDefault(require("mongoose"));
 var dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
-var MONGO_URI = process.env.MONGODB_URI || "mongo://localhost/27017/healthpulse";
+var MONGO_URI = process.env.MONGODB_URI
+    || "mongo://localhost/27017/healthpulse";
 var connectToMongoDB = function () { return __awaiter(void 0, void 0, void 0, function () {
     var error_1;
     return __generator(this, function (_a) {
@@ -53,7 +54,7 @@ var connectToMongoDB = function () { return __awaiter(void 0, void 0, void 0, fu
                 return [4 /*yield*/, mongoose_1.default.connect(MONGO_URI)];
             case 1:
                 _a.sent();
-                console.log('Successfully Connected to MongoDB');
+                console.log('Connected to MongoDB');
                 return [3 /*break*/, 3];
             case 2:
                 error_1 = _a.sent();

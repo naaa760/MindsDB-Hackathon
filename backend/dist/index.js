@@ -41,6 +41,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var express_1 = __importDefault(require("express"));
 var mongooseConnection_1 = require("./config/mongooseConnection");
+var reportsRoute_1 = __importDefault(require("./routes/reportsRoute"));
 var dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 var app = (0, express_1.default)();
@@ -57,7 +58,6 @@ app.use(express_1.default.json());
                 return [4 /*yield*/, (0, mongooseConnection_1.connectToMongoDB)()];
             case 1:
                 _a.sent();
-                console.log('Connected to MongoDB');
                 return [3 /*break*/, 3];
             case 2:
                 error_1 = _a.sent();
@@ -69,6 +69,7 @@ app.use(express_1.default.json());
     });
 }); })();
 // Define routes
+app.use('/api', reportsRoute_1.default);
 app.get('/', function (req, res) {
     res.send('Welcome to the HealthPulseAPI');
 });

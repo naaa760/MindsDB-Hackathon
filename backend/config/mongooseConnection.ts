@@ -4,12 +4,13 @@ import dotenv from 'dotenv';
 dotenv.config()
 
 
-const MONGO_URI: string = process.env.MONGODB_URI || "mongo://localhost/27017/healthpulse"
+const MONGO_URI: string = process.env.MONGODB_URI
+  || "mongo://localhost/27017/healthpulse"
 
 export const connectToMongoDB = async (): Promise<void> => {
   try {
     await mongoose.connect(MONGO_URI)
-    console.log('Successfully Connected to MongoDB')
+    console.log('Connected to MongoDB')
   } catch (error) {
     console.error('Error connecting to MongoDB:', error)
   }
