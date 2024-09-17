@@ -76,7 +76,7 @@ healthReportRouter.post('/get-report', function (req, res) { return __awaiter(vo
                     symptoms: symptoms,
                     timeOfYear: timeOfYear,
                     places: places,
-                    healthReports: [result], // Add the health report to the healthReports field
+                    healthReports: [result],
                     createdAt: new Date(),
                     updatedAt: new Date(),
                 });

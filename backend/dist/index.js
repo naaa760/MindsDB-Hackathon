@@ -40,14 +40,22 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var express_1 = __importDefault(require("express"));
+var cors_1 = __importDefault(require("cors"));
 var mongooseConnection_1 = require("./config/mongooseConnection");
 var reportsRoute_1 = __importDefault(require("./routes/reportsRoute"));
 var dotenv_1 = __importDefault(require("dotenv"));
+var healthDashboardData_1 = __importDefault(require("./routes/healthDashboardData"));
 dotenv_1.default.config();
 var app = (0, express_1.default)();
 var port = process.env.PORT || 3000;
 // Middleware to parse JSON bodies
 app.use(express_1.default.json());
+// Configure the Middleware to allow from all origins
+var corsOptions = {
+    origin: "*", // Allow all origins
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'], // Allow CRUD methods
+};
+app.use((0, cors_1.default)(corsOptions)); // Proper CORS middleware setup
 // Connect to MongoDB when the app starts
 (function () { return __awaiter(void 0, void 0, void 0, function () {
     var error_1;
@@ -69,12 +77,18 @@ app.use(express_1.default.json());
     });
 }); })();
 // Define routes
-app.use('/api', reportsRoute_1.default);
+// Home route
 app.get('/', function (req, res) {
     res.send('Welcome to the HealthPulseAPI');
 });
+// Route to get the health report
+app.use('/api', reportsRoute_1.default);
+// Route to get the health dashboard data
+app.use('/api', healthDashboardData_1.default);
 // Start the server
-var server = app.listen(port, function () { return console.log("App listening on port ".concat(port)); });
+var server = app.listen(port, function () {
+    console.log("App listening on port ".concat(port));
+});
 // Graceful shutdown
 var shutdown = function () { return __awaiter(void 0, void 0, void 0, function () {
     return __generator(this, function (_a) {

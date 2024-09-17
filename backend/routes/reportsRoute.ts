@@ -34,7 +34,7 @@ healthReportRouter.post('/get-report', async (req: Request, res: Response) => {
       symptoms: symptoms,
       timeOfYear: timeOfYear,
       places: places,
-      healthReports: [result], // Add the health report to the healthReports field
+      healthReports: [result],
       createdAt: new Date(),
       updatedAt: new Date(),
     });

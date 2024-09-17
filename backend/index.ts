@@ -1,15 +1,25 @@
-import express from 'express';
+import express, { Application } from 'express';
+import cors, { CorsOptions } from 'cors';
 import { connectToMongoDB, disconnectFromMongoDB } from './config/mongooseConnection';
 import healthReportRouter from './routes/reportsRoute';
 import dotenv from 'dotenv';
+import healthDashboardRouter from './routes/healthDashboardData';
 
 dotenv.config();
 
-const app = express();
+const app: Application = express();
 const port = process.env.PORT || 3000;
 
 // Middleware to parse JSON bodies
 app.use(express.json());
+
+// Configure the Middleware to allow from all origins
+const corsOptions: CorsOptions = {
+  origin: "*", // Allow all origins
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'], // Allow CRUD methods
+};
+
+app.use(cors(corsOptions)); // Proper CORS middleware setup
 
 // Connect to MongoDB when the app starts
 (async () => {
@@ -22,14 +32,21 @@ app.use(express.json());
 })();
 
 // Define routes
-app.use('/api', healthReportRouter)
-
+// Home route
 app.get('/', (req, res) => {
   res.send('Welcome to the HealthPulseAPI');
 });
 
+// Route to get the health report
+app.use('/api', healthReportRouter);
+
+// Route to get the health dashboard data
+app.use('/api', healthDashboardRouter);
+
 // Start the server
-const server = app.listen(port, () => console.log(`App listening on port ${port}`));
+const server = app.listen(port, () => {
+  console.log(`App listening on port ${port}`);
+});
 
 // Graceful shutdown
 const shutdown = async () => {
