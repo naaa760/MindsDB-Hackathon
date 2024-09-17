@@ -24,53 +24,73 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var mongoose_1 = __importStar(require("mongoose"));
-var HeaalthDashboardDataSchema = new mongoose_1.default.Schema({
+var HealthReportSchema = new mongoose_1.default.Schema({
     user: {
         type: mongoose_1.Schema.Types.ObjectId,
         ref: 'HealthPulseUser',
-        required: true,
+        required: true
     },
-    email: {
+    name: {
         type: String,
         required: true
     },
-    date: {
-        type: Date,
-        default: Date.now()
-    },
-    heartRate: {
+    age: {
         type: Number,
-        required: false
+        required: true
     },
-    steps: {
-        type: Number,
-        required: false
+    sex: {
+        type: String,
+        required: true
     },
-    sleep: {
-        type: Number,
-        required: false
+    location: {
+        type: String,
+        required: true
     },
-    weight: {
-        type: Number,
-        required: false
+    timeOfYear: {
+        type: String,
+        required: true
     },
-    calories: {
-        type: Number,
-        required: false
+    symptoms: {
+        type: [String],
+        required: true
     },
-    waterIntake: {
-        type: Number,
-        required: false
+    suspectedDisease: {
+        type: String,
+        required: true
     },
-    activeMinutes: {
-        type: Number,
-        required: false
+    pathophysiology: {
+        type: String,
+        required: true
     },
-    createdAt: {
+    generalHealthStatus: {
+        type: String,
+        required: true
+    },
+    ageSpecificInsights: {
+        type: String,
+        required: true
+    },
+    sexSpecificInsights: {
+        type: String,
+        required: true
+    },
+    locationSpecificInsights: {
+        type: String,
+        required: true
+    },
+    seasonalHealthConsiderations: {
+        type: String,
+        required: true
+    },
+    educationalSpecificInsights: {
+        type: String,
+        required: true
+    },
+    dateAdded: {
         type: Date,
         default: Date.now
     },
 });
-var HeaalthDashboardDataModel = mongoose_1.default.model('HeaalthDashboardData', HeaalthDashboardDataSchema);
-// Export the Model to use in the application
-exports.default = HeaalthDashboardDataModel;
+var HealthReportModel = mongoose_1.default.model('HealthReport', HealthReportSchema);
+// Export the model
+exports.default = HealthReportModel;

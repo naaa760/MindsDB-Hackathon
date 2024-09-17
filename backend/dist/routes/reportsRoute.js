@@ -1,4 +1,15 @@
 "use strict";
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -42,9 +53,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var express_1 = require("express");
 var getResponse_1 = __importDefault(require("../utils/getResponse"));
 var userModel_1 = __importDefault(require("../models/userModel"));
+var healthReportModel_1 = __importDefault(require("../models/healthReportModel"));
 var healthReportRouter = (0, express_1.Router)();
 healthReportRouter.post('/get-report', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var _a, name, email, age, sex, occupation, symptoms, timeOfYear, places, result, user, error_1, typedError;
+    var _a, name, email, age, sex, occupation, symptoms, timeOfYear, places, report, user, newReport, error_1, typedError;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
@@ -55,7 +67,7 @@ healthReportRouter.post('/get-report', function (req, res) { return __awaiter(vo
                 }
                 _b.label = 1;
             case 1:
-                _b.trys.push([1, 4, , 5]);
+                _b.trys.push([1, 7, , 8]);
                 return [4 /*yield*/, (0, getResponse_1.default)({
                         name: name,
                         age: age,
@@ -66,46 +78,50 @@ healthReportRouter.post('/get-report', function (req, res) { return __awaiter(vo
                         occupation: occupation,
                     })];
             case 2:
-                result = _b.sent();
+                report = _b.sent();
+                return [4 /*yield*/, userModel_1.default.findOne({ email: email }).exec()];
+            case 3:
+                user = _b.sent();
+                if (!!user) return [3 /*break*/, 5];
+                // Create a new user instance if not found
                 user = new userModel_1.default({
                     name: name,
                     email: email,
                     age: age,
                     sex: sex,
                     occupation: occupation,
-                    symptoms: symptoms,
-                    timeOfYear: timeOfYear,
-                    places: places,
-                    healthReports: [result],
                     createdAt: new Date(),
                     updatedAt: new Date(),
                 });
-                // Save user to the database
+                // Save the user to the database
                 return [4 /*yield*/, user.save()];
-            case 3:
-                // Save user to the database
-                _b.sent();
-                // Send the health report response
-                if (!res.headersSent) {
-                    res.json(result);
-                }
-                console.log('Added the user and sent the health report');
-                return [3 /*break*/, 5];
             case 4:
+                // Save the user to the database
+                _b.sent();
+                _b.label = 5;
+            case 5:
+                newReport = new healthReportModel_1.default(__assign(__assign({ user: user._id }, report), { dateAdded: new Date() }));
+                return [4 /*yield*/, newReport.save()];
+            case 6:
+                _b.sent();
+                // Send the generated health report as a response
+                res.json(report);
+                console.log('User and health report saved successfully');
+                return [3 /*break*/, 8];
+            case 7:
                 error_1 = _b.sent();
-                // Handle errors and send an error response
                 if (!res.headersSent) {
                     typedError = error_1;
                     res.status(500).json({ error: typedError.message });
                 }
-                console.error('Error Creating User and Saving the response:', error_1);
-                return [3 /*break*/, 5];
-            case 5: return [2 /*return*/];
+                console.error('Error saving user or health report:', error_1);
+                return [3 /*break*/, 8];
+            case 8: return [2 /*return*/];
         }
     });
 }); });
 healthReportRouter.get('/get-report', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var email, user, error_2, typedError;
+    var email, user, reports, error_2, typedError;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -116,24 +132,27 @@ healthReportRouter.get('/get-report', function (req, res) { return __awaiter(voi
                 }
                 _a.label = 1;
             case 1:
-                _a.trys.push([1, 3, , 4]);
+                _a.trys.push([1, 4, , 5]);
                 return [4 /*yield*/, userModel_1.default.findOne({ email: email }).exec()];
             case 2:
                 user = _a.sent();
                 if (!user) {
-                    return [2 /*return*/, res.status(404).json({ error: "User not found" })];
+                    return [2 /*return*/, res.status(404).json({ error: 'User not found' })];
                 }
-                res.json(user);
-                return [3 /*break*/, 4];
+                return [4 /*yield*/, healthReportModel_1.default.find({ user: user._id }).sort({ createdAt: -1 }).exec()];
             case 3:
+                reports = _a.sent();
+                res.json({ user: user, reports: reports });
+                return [3 /*break*/, 5];
+            case 4:
                 error_2 = _a.sent();
                 if (!res.headersSent) {
                     typedError = error_2;
                     res.status(500).json({ error: typedError.message });
                 }
-                console.error('Error retrieving User Data', error_2);
-                return [3 /*break*/, 4];
-            case 4: return [2 /*return*/];
+                console.error('Error retrieving user or health reports:', error_2);
+                return [3 /*break*/, 5];
+            case 5: return [2 /*return*/];
         }
     });
 }); });

@@ -53,7 +53,7 @@ app.use(express_1.default.json());
 // Configure the Middleware to allow from all origins
 var corsOptions = {
     origin: "*", // Allow all origins
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'], // Allow CRUD methods
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
 };
 app.use((0, cors_1.default)(corsOptions)); // Proper CORS middleware setup
 // Connect to MongoDB when the app starts
