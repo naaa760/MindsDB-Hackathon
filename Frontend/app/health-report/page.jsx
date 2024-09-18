@@ -80,8 +80,8 @@ const HealthReportPage = () => {
       const formattedData = {
         ...formData,
         age: parseInt(formData.age, 10),
-        symptoms: formData.symptoms.map(symptom => `"${symptom}"`),
-        places: formData.places.map(place => `"${place}"`)
+        symptoms: formData.symptoms,
+        places: formData.places
       };
 
       const response = await fetch('https://healthpulse-hbaq.onrender.com/api/get-report', {
@@ -114,6 +114,10 @@ const HealthReportPage = () => {
       <div className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
     </div>
   );
+
+  const safeJoin = (arr, separator) => {
+    return Array.isArray(arr) ? arr.join(separator) : String(arr || '');
+  };
 
   return (
     <div className="max-w-4xl mx-auto p-4 bg-gradient-to-br from-green-50 to-blue-50 min-h-screen">
@@ -183,7 +187,7 @@ const HealthReportPage = () => {
                 <Input
                   id="symptoms"
                   name="symptoms"
-                  value={formData.symptoms.join(', ')}
+                  value={safeJoin(formData.symptoms, ', ')}
                   onChange={handleArrayInputChange}
                   required
                 />
@@ -196,7 +200,7 @@ const HealthReportPage = () => {
                 <Input
                   id="places"
                   name="places"
-                  value={formData.places.join(', ')}
+                  value={safeJoin(formData.places, ', ')}
                   onChange={handleArrayInputChange}
                   required
                 />
@@ -256,13 +260,13 @@ const HealthReportPage = () => {
           </CardHeader>
           <CardContent className="p-6">
             <div className="space-y-4">
-              <p><strong>Name:</strong> {report.name}</p>
-              <p><strong>Age:</strong> {report.age}</p>
-              <p><strong>Sex:</strong> {report.sex}</p>
-              <p><strong>Places:</strong> {report.places?.join(', ') || 'N/A'}</p>
-              <p><strong>Time of Year:</strong> {report.timeOfYear}</p>
-              <p><strong>Symptoms:</strong> {report.symptoms?.join(', ') || 'N/A'}</p>
-              <p><strong>Suspected Diseases:</strong> {report.suspectedDisease?.join(', ') || 'N/A'}</p>
+              <p><strong>Name:</strong> {report.name || 'N/A'}</p>
+              <p><strong>Age:</strong> {report.age || 'N/A'}</p>
+              <p><strong>Sex:</strong> {report.sex || 'N/A'}</p>
+              <p><strong>Places:</strong> {safeJoin(report.places, ', ') || 'N/A'}</p>
+              <p><strong>Time of Year:</strong> {report.timeOfYear || 'N/A'}</p>
+              <p><strong>Symptoms:</strong> {safeJoin(report.symptoms, ', ') || 'N/A'}</p>
+              <p><strong>Suspected Diseases:</strong> {safeJoin(report.suspectedDisease, ', ') || 'N/A'}</p>
               <div>
                 <strong>Pathophysiology:</strong>
                 <p>{report.pathophysiology || 'N/A'}</p>
