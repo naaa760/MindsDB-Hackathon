@@ -16,7 +16,7 @@ app.use(express.json());
 // Configure the Middleware to allow from all origins
 const corsOptions: CorsOptions = {
   origin: "*", // Allow all origins
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'], // Allow CRUD methods
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
 };
 
 app.use(cors(corsOptions)); // Proper CORS middleware setup

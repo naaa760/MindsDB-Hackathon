@@ -40,12 +40,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var express_1 = require("express");
-var healthData_1 = __importDefault(require("../models/healthData"));
+var healthDashboardDataModel_1 = __importDefault(require("../models/healthDashboardDataModel"));
 var userModel_1 = __importDefault(require("../models/userModel"));
-var reportsRoute_1 = __importDefault(require("./reportsRoute"));
 var healthDashboardRouter = (0, express_1.Router)();
+// Optimize POST route for adding health dashboard data
 healthDashboardRouter.post('/dashboard-details', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var _a, email, date, steps, sleep, weight, calories, waterIntake, activeMinutes, user, healthData, savedHealthData, error_1, typedError;
+    var _a, email, date, steps, sleep, weight, calories, waterIntake, activeMinutes, userPromise, user, healthData, error_1, typedError;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
@@ -56,15 +56,17 @@ healthDashboardRouter.post('/dashboard-details', function (req, res) { return __
                 _b.label = 1;
             case 1:
                 _b.trys.push([1, 4, , 5]);
-                return [4 /*yield*/, userModel_1.default.findOne({ email: email }).exec()];
+                userPromise = userModel_1.default.findOne({ email: email }).exec();
+                return [4 /*yield*/, userPromise];
             case 2:
                 user = _b.sent();
                 if (!user) {
                     return [2 /*return*/, res.status(404).json({ error: 'User not found' })];
                 }
-                healthData = new healthData_1.default({
+                healthData = new healthDashboardDataModel_1.default({
+                    user: user._id,
                     email: email,
-                    date: date,
+                    date: new Date(),
                     steps: steps,
                     sleep: sleep,
                     weight: weight,
@@ -72,12 +74,13 @@ healthDashboardRouter.post('/dashboard-details', function (req, res) { return __
                     waterIntake: waterIntake,
                     activeMinutes: activeMinutes,
                 });
+                // Save the document
                 return [4 /*yield*/, healthData.save()];
             case 3:
-                savedHealthData = _b.sent();
-                user.healthData.push(savedHealthData._id);
+                // Save the document
+                _b.sent();
                 console.log('Added the health dashboard data');
-                return [3 /*break*/, 5];
+                return [2 /*return*/, res.status(201).json({ message: 'Health data added successfully' })];
             case 4:
                 error_1 = _b.sent();
                 if (!res.headersSent) {
@@ -90,7 +93,8 @@ healthDashboardRouter.post('/dashboard-details', function (req, res) { return __
         }
     });
 }); });
-reportsRoute_1.default.get('/dashboard-details', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+// Optimize GET route for fetching health dashboard data
+healthDashboardRouter.get('/dashboard-details', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var email, healthData, error_2, typedError;
     return __generator(this, function (_a) {
         switch (_a.label) {
@@ -102,10 +106,13 @@ reportsRoute_1.default.get('/dashboard-details', function (req, res) { return __
                 _a.label = 1;
             case 1:
                 _a.trys.push([1, 3, , 4]);
-                return [4 /*yield*/, healthData_1.default.findOne({ email: email }).exec()];
+                return [4 /*yield*/, healthDashboardDataModel_1.default.find({ email: email })
+                        .sort({ createdAt: -1 })
+                        .lean()
+                        .exec()];
             case 2:
                 healthData = _a.sent();
-                if (!healthData) {
+                if (!healthData.length) {
                     return [2 /*return*/, res.status(404).json({ error: 'Health Data not found' })];
                 }
                 res.json(healthData);
