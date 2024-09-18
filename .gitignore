@@ -5,3 +5,5 @@ backend/.env
 backend/.env.local
 backend-python/Pipfile.lock
 backend-python/.env
+frontend/.env.local
+frontend/.env*.local
