@@ -300,5 +300,3 @@ const HealthReportPage = () => {
 };
 
 export default HealthReportPage;
-
-
