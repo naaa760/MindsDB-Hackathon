@@ -55,6 +55,104 @@ var getResponse_1 = __importDefault(require("../utils/getResponse"));
 var userModel_1 = __importDefault(require("../models/userModel"));
 var healthReportModel_1 = __importDefault(require("../models/healthReportModel"));
 var healthReportRouter = (0, express_1.Router)();
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     HealthReport:
+ *       type: object
+ *       required:
+ *         - name
+ *         - email
+ *         - age
+ *         - sex
+ *         - occupation
+ *         - symptoms
+ *         - timeOfYear
+ *         - places
+ *       properties:
+ *         name:
+ *           type: string
+ *           description: The name of the user
+ *         email:
+ *           type: string
+ *           description: The user's email address
+ *         age:
+ *           type: number
+ *           description: The age of the user
+ *         sex:
+ *           type: string
+ *           description: The user's gender
+ *         occupation:
+ *           type: string
+ *           description: The user's occupation
+ *         symptoms:
+ *           type: array
+ *           items:
+ *             type: string
+ *           description: A list of symptoms
+ *         timeOfYear:
+ *           type: string
+ *           description: The season or time of year
+ *         places:
+ *           type: array
+ *           items:
+ *             type: string
+ *           description: The places the user has visited
+ *
+ *     User:
+ *       type: object
+ *       required:
+ *         - name
+ *         - email
+ *         - age
+ *         - sex
+ *         - occupation
+ *       properties:
+ *         name:
+ *           type: string
+ *           description: The name of the user
+ *         email:
+ *           type: string
+ *           description: The user's email
+ *         age:
+ *           type: number
+ *           description: The age of the user
+ *         sex:
+ *           type: string
+ *           description: The gender of the user
+ *         occupation:
+ *           type: string
+ *           description: The user's occupation
+ */
+/**
+ * @swagger
+ * /get-report:
+ *   post:
+ *     summary: Generate a health report for a user
+ *     description: Generates a health report for a user based on input details like name, age, symptoms, etc., and saves it to the database.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/HealthReport'
+ *     responses:
+ *       200:
+ *         description: The generated health report
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               example:
+ *                 report: { healthStatus: 'Good', suggestions: ['Rest more', 'Stay hydrated']}
+ *       400:
+ *         description: Missing required fields
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
+ */
 healthReportRouter.post('/get-report', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var _a, name, email, age, sex, occupation, symptoms, timeOfYear, places, report, user, newReport, error_1, typedError;
     return __generator(this, function (_b) {
@@ -120,6 +218,41 @@ healthReportRouter.post('/get-report', function (req, res) { return __awaiter(vo
         }
     });
 }); });
+/**
+ * @swagger
+ * /get-report:
+ *   get:
+ *     summary: Retrieve user health reports
+ *     description: Retrieves all health reports for a given user based on their email.
+ *     parameters:
+ *       - in: query
+ *         name: email
+ *         required: true
+ *         description: The email of the user
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: The user's health reports
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 user:
+ *                   $ref: '#/components/schemas/User'
+ *                 reports:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     description: The health report data
+ *       400:
+ *         description: Invalid or missing email query parameter
+ *       404:
+ *         description: User or reports not found
+ *       500:
+ *         description: Server error
+ */
 healthReportRouter.get('/get-report', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var email, user, reports, error_2, typedError;
     return __generator(this, function (_a) {

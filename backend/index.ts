@@ -1,6 +1,8 @@
-import express, { Application } from 'express';
+import express, { Application, Request, Response } from 'express';
 import cors, { CorsOptions } from 'cors';
 import { connectToMongoDB, disconnectFromMongoDB } from './config/mongooseConnection';
+import swaggerUi from 'swagger-ui-express';
+import swaggerJsDoc from 'swagger-jsdoc';
 import healthReportRouter from './routes/reportsRoute';
 import dotenv from 'dotenv';
 import healthDashboardRouter from './routes/healthDashboardData';
@@ -19,7 +21,7 @@ const corsOptions: CorsOptions = {
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
 };
 
-app.use(cors(corsOptions)); // Proper CORS middleware setup
+app.use(cors(corsOptions));
 
 // Connect to MongoDB when the app starts
 (async () => {
@@ -31,12 +33,45 @@ app.use(cors(corsOptions)); // Proper CORS middleware setup
   }
 })();
 
-// Define routes
-// Home route
-app.get('/', (req, res) => {
-  res.send('Welcome to the HealthPulseAPI');
+// Swagger configuration options
+const swaggerOptions: swaggerJsDoc.Options = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'HealthPulse API',
+      version: '1.0.0',
+      description: 'API documentation for the HealthPulse project',
+      contact: {
+        name: 'Halleluyah Oludele',
+        email: 'halleluyaholudele@gmail.com',
+      },
+    },
+    servers: [
+      {
+        url: 'http://localhost:3000',
+      },
+      {
+        url: 'https://healthpulse-hbaq.onrender.com'
+      }
+    ],
+  },
+  apis: ['./routes/*.ts'], // Path to your route files
+};
+
+// Initialize swagger-jsdoc
+const swaggerDocs = swaggerJsDoc(swaggerOptions);
+
+// Serve Swagger API docs on the /api-docs route
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+
+// Home route to display a message with a link to the API docs
+app.get('/', (req: Request, res: Response) => {
+  res.send(
+    '<h1>Welcome to Health Dashboard API</h1><p>View API documentation at <a href="/api-docs">/api-docs</a></p>'
+  );
 });
 
+// Define routes
 // Route to get the health report
 app.use('/api', healthReportRouter);
 

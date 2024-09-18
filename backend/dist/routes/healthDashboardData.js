@@ -43,6 +43,55 @@ var express_1 = require("express");
 var healthDashboardDataModel_1 = __importDefault(require("../models/healthDashboardDataModel"));
 var userModel_1 = __importDefault(require("../models/userModel"));
 var healthDashboardRouter = (0, express_1.Router)();
+/**
+ * @swagger
+ * /dashboard-details:
+ *   post:
+ *     summary: Add health dashboard data for a user
+ *     tags: [HealthDashboard]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - date
+ *               - steps
+ *               - sleep
+ *               - weight
+ *               - calories
+ *               - waterIntake
+ *               - activeMinutes
+ *             properties:
+ *               email:
+ *                 type: string
+ *               date:
+ *                 type: string
+ *                 format: date
+ *               steps:
+ *                 type: number
+ *               sleep:
+ *                 type: number
+ *               weight:
+ *                 type: number
+ *               calories:
+ *                 type: number
+ *               waterIntake:
+ *                 type: number
+ *               activeMinutes:
+ *                 type: number
+ *     responses:
+ *       200:
+ *         description: Successfully added health dashboard data
+ *       400:
+ *         description: Missing required fields
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Internal server error
+ */
 // Optimize POST route for adding health dashboard data
 healthDashboardRouter.post('/dashboard-details', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var _a, email, date, steps, sleep, weight, calories, waterIntake, activeMinutes, userPromise, user, healthData, error_1, typedError;
@@ -93,6 +142,29 @@ healthDashboardRouter.post('/dashboard-details', function (req, res) { return __
         }
     });
 }); });
+/**
+ * @swagger
+ * /dashboard-details:
+ *   get:
+ *     summary: Get health dashboard data for a user by email
+ *     tags: [HealthDashboard]
+ *     parameters:
+ *       - name: email
+ *         in: query
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User email address
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved health data
+ *       400:
+ *         description: Invalid or missing email in query parameter
+ *       404:
+ *         description: Health data not found
+ *       500:
+ *         description: Error retrieving health data
+ */
 // Optimize GET route for fetching health dashboard data
 healthDashboardRouter.get('/dashboard-details', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var email, healthData, error_2, typedError;

@@ -42,6 +42,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var express_1 = __importDefault(require("express"));
 var cors_1 = __importDefault(require("cors"));
 var mongooseConnection_1 = require("./config/mongooseConnection");
+var swagger_ui_express_1 = __importDefault(require("swagger-ui-express"));
+var swagger_jsdoc_1 = __importDefault(require("swagger-jsdoc"));
 var reportsRoute_1 = __importDefault(require("./routes/reportsRoute"));
 var dotenv_1 = __importDefault(require("dotenv"));
 var healthDashboardData_1 = __importDefault(require("./routes/healthDashboardData"));
@@ -55,7 +57,7 @@ var corsOptions = {
     origin: "*", // Allow all origins
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
 };
-app.use((0, cors_1.default)(corsOptions)); // Proper CORS middleware setup
+app.use((0, cors_1.default)(corsOptions));
 // Connect to MongoDB when the app starts
 (function () { return __awaiter(void 0, void 0, void 0, function () {
     var error_1;
@@ -76,11 +78,39 @@ app.use((0, cors_1.default)(corsOptions)); // Proper CORS middleware setup
         }
     });
 }); })();
-// Define routes
-// Home route
+// Swagger configuration options
+var swaggerOptions = {
+    definition: {
+        openapi: '3.0.0',
+        info: {
+            title: 'HealthPulse API',
+            version: '1.0.0',
+            description: 'API documentation for the HealthPulse project',
+            contact: {
+                name: 'Halleluyah Oludele',
+                email: 'halleluyaholudele@gmail.com',
+            },
+        },
+        servers: [
+            {
+                url: 'http://localhost:3000',
+            },
+            {
+                url: 'https://healthpulse-hbaq.onrender.com'
+            }
+        ],
+    },
+    apis: ['./routes/*.ts'], // Path to your route files
+};
+// Initialize swagger-jsdoc
+var swaggerDocs = (0, swagger_jsdoc_1.default)(swaggerOptions);
+// Serve Swagger API docs on the /api-docs route
+app.use('/api-docs', swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(swaggerDocs));
+// Home route to display a message with a link to the API docs
 app.get('/', function (req, res) {
-    res.send('Welcome to the HealthPulseAPI');
+    res.send('<h1>Welcome to Health Dashboard API</h1><p>View API documentation at <a href="/api-docs">/api-docs</a></p>');
 });
+// Define routes
 // Route to get the health report
 app.use('/api', reportsRoute_1.default);
 // Route to get the health dashboard data
