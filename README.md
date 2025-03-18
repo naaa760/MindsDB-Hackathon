@@ -1,6 +1,9 @@
 HealthPulse Documentation
 =========================
 
+![image](https://github.com/user-attachments/assets/c4b7d29c-87f4-4202-867f-95031d15d190)
+
+
 **Trial Link:** https://health-pulse-beta.vercel.app/
 
 Overview
